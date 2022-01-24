@@ -41,7 +41,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef SPI_Params;
 
 /* USER CODE BEGIN PV */
 
@@ -93,6 +93,31 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
+          //1. Bring slave select low
+
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+
+	  //2. Transmit register + data
+
+	  SPI_HandleTypeDef SPI_Params;
+
+	  spiTxBuf[0] = 0x20;
+
+	  HAL_SPI_Init(&SPI_Params);
+	  HAL_SPI_Transmit(&SPI_Params, spiTxBuf, 2, 50);
+
+	  //3. Bring slave high
+
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+
+
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+	  spiTxBuf[0] = 0x20;
+	  HAL_SPI_Transmit(&SPI_Params,&spiTxBuf[0], 1, 50);
+	  spiTxBuf[1] = 0x11;
+	  HAL_SPI_Transmit(&SPI_Params,&spiTxBuf[1], 1, 50);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+	
 
   /* USER CODE END 2 */
 
@@ -104,7 +129,25 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
 
+
+	   spiTxBuf[1] = 0x11;
+	   HAL_SPI_Init(&SPI_Params);
+	   HAL_SPI_Transmit(&SPI_Params, spiTxBuf, 2, 50);
+
+
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+	   spiTxBuf[0] = 0x20;
+	   HAL_SPI_Transmit(&SPI_Params,&spiTxBuf[0], 1, 50);
+	   spiTxBuf[1] = 0x11;
+	   HAL_SPI_Transmit(&SPI_Params,&spiTxBuf[1], 1, 50);
+	   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+
+
+       HAL_Delay(300);
+
+	  
   }
   /* USER CODE END 3 */
 }
@@ -163,70 +206,29 @@ static void MX_SPI1_Init(void)
 
   /* USER CODE BEGIN SPI1_Init 0 */
 
-	  //1. Bring slave select low
-
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
-
-	  //2. Transmit register + data
-
-	  SPI_HandleTypeDef SPI_Params;
-
-	  spiTxBuf[0] = 0x20;
-
-	  HAL_SPI_Init(&SPI_Params);
-	  HAL_SPI_Transmit(&SPI_Params, spiTxBuf, 2, 50);
-
-	  //3. Bring slave high
-
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
-
-
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
-	  spiTxBuf[0] = 0x20;
-	  HAL_SPI_Transmit(&SPI_Params,&spiTxBuf[0], 1, 50);
-	  spiTxBuf[1] = 0x11;
-	  HAL_SPI_Transmit(&SPI_Params,&spiTxBuf[1], 1, 50);
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
 
 
   /* USER CODE END SPI1_Init 0 */
 
   /* USER CODE BEGIN SPI1_Init 1 */
 
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
-
-
-	   spiTxBuf[1] = 0x11;
-	   HAL_SPI_Init(&SPI_Params);
-	   HAL_SPI_Transmit(&SPI_Params, spiTxBuf, 2, 50);
-
-
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
-	   spiTxBuf[0] = 0x20;
-	   HAL_SPI_Transmit(&SPI_Params,&spiTxBuf[0], 1, 50);
-	   spiTxBuf[1] = 0x11;
-	   HAL_SPI_Transmit(&SPI_Params,&spiTxBuf[1], 1, 50);
-	   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
-
-
-       HAL_Delay(300);
 
 
   /* USER CODE END SPI1_Init 1 */
   /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  SPI_Params.Instance = SPI1;
+  SPI_Params.Init.Mode = SPI_MODE_MASTER;
+  SPI_Params.Init.Direction = SPI_DIRECTION_2LINES;
+  SPI_Params.Init.DataSize = SPI_DATASIZE_8BIT;
+  SPI_Params.Init.CLKPolarity = SPI_POLARITY_LOW;
+  SPI_Params.Init.CLKPhase = SPI_PHASE_1EDGE;
+  SPI_Params.Init.NSS = SPI_NSS_SOFT;
+  SPI_Params.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+  SPI_Params.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  SPI_Params.Init.TIMode = SPI_TIMODE_DISABLE;
+  SPI_Params.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  SPI_Params.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&SPI_Params) != HAL_OK)
   {
     Error_Handler();
   }
